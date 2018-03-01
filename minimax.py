@@ -1,107 +1,87 @@
-def make_grid(grid,next_move_cord,turn):
-	if(turn=="max"):
-		character='X'
-	else:character='O'
+nxy={1:[0,0],2:[0,1],3:[0,2],4:[1,0],5:[1,1],6:[1,2],7:[2,0],8:[2,1],9:[2,2]}
 
-	grid[next_move_cord[0]][next_move_cord[1]]=character
+def find_max(values):
+	max=-100
+	for i in values:
+		if(i>max):
+			max=i
+	return max
 
-	return
-
-
-
-
-def all_moves(grid):
-	moves=[]
-
-	for i in range(0,3):
-		for j in range(0,3):
-			if(grid=='')
-				moves.append([i,j])
-	return moves
+def find_min(values):
+	min=100
+	for i in values:
+		if(i<min):
+			min=i
+	return min
 
 
+def add_to_dict(values,score,coord):
+	try:
+		values[score].append(coord)
+	except KeyError:
+		values[score]=[coord]
 
-def print_grid(grid):
-	for i in range(0,3):
-		for j in range(0,3):
-			print(grid[i][j]," ",end='')
-		print()
+def win_or_draw_or_continue(board):
+	win_coord=[[1,2,3],[4,5,6],[7,8,9],[1,4,7],[2,5,8],[3,6,9],[1,5,9],[3,5,7]]
+	empty=['','','']
+	for i in win_coord:
+		if((board[nxy[i[0]][0]][nxy[i[0]][1]]==board[nxy[i[1]][0]][nxy[i[1]][1]]==board[nxy[i[2]][0]][nxy[i[2]][1]]) and ([board[nxy[i[0]][0]][nxy[i[0]][1]],board[nxy[i[1]][0]][nxy[i[1]][1]],board[nxy[i[2]][0]][nxy[i[2]][1]]]!=empty)):
+			return [1,board[nxy[i[0]][0]][nxy[i[0]][1]]]
+	count=0
+	for i in board:
+		for j in i:
+			if (j==''):
+				count+=1
+	if(count==0):
+		return 0
+	return '@'
 
+def make_fake_board(board,temp_coord,option):
+	fake_board=[['','',''],['','',''],['','','']]
+	for i in nxy:
+		fake_board[nxy[i][0]][nxy[i][1]]=board[nxy[i][0]][nxy[i][1]]
+	fake_board[temp_coord[0]][temp_coord[1]]=option
+	return fake_board
 
+def find_all_empty_space(board):
+	empty_spaces=[]
+	for i in nxy:
+		if(board[nxy[i][0]][nxy[i][1]]==''):
+			empty_spaces.append(nxy[i])
+	return empty_spaces
 
+def minimax(board,is_max,depth):
+	val=win_or_draw_or_continue(board)
+	if(val==0):
+		return 0
+	if(val==[1,'x']):
+		return 10
+	if(val==[1,'y']):
+		return -10
 
-
-def is_leaf(grid,score):
-	x='X'
-	o='O'
-
-	for i in range(0,3):#rows
-		if(grid[i][0]==x==grid[i][1]==x==grid[i][2]==x):
-			score=10
-			return True
-		if(grid[i][0]==o==grid[i][1]==o==grid[i][2]==o):
-			score=-10
-			return True
-
-	for i in range(0,3):#cols
-		if(grid[0][i]==x==grid[1][i]==x==grid[2][i]==x):
-			score=10
-			return True
-		if(grid[0][i]==o==grid[1][i]==o==grid[2][i]==o):
-			score= -10
-			return True
-
-	if(grid[0][0]==x==grid[1][1]==x==grid[2][2]==x):
-			score= 10
-			return True
-	if(grid[0][0]==o==grid[1][1]==o==grid[2][2]==o):
-			score= -10
-			return True
-
-	if(grid[0][2]==x==grid[1][1]==x==grid[2][0]==x):
-			score= 10
-			return True
-	if(grid[0][2]==o==grid[1][1]==o==grid[2][0]==o):
-			score= -10
-			return True
-
-	if(len(all_moves(grid))==0 or len(all_moves(grid))>=8):
-		score= 0
-		return True
-
-
-def index_of(list,ele):
-	for i in range(len(list)):
-		if(list[i]==ele):
-			return i
-
-def minimax(grid,turn,move):
-	score=0
-	if(is_leaf(grid,score)):
-		return score
-
-	moves=all_moves(grid)
-	if(turn=="max"):
-		move_list=[]
-		score_list=[]
-		for i in moves:
-			move_list.append(i)
-			temp_grid=grid.copy()
-			make_grid(temp_grid,i,"max")
-			score_list.append(minimax(temp_grid,"min",[]))
-				
+	if(is_max):
+		values={}
+		empty_spaces=find_all_empty_space(board)
+		for i in empty_spaces:
+			fake_board=make_fake_board(board,i,'X')
+			value=minimax(fake_board,False,[depth[0],depth[1]+1])
+			add_to_dict(values,value,i)
+		max=find_max(values)
+		if(depth[0]==depth[1]):
+			return values[max]
+		else: return max 
 	else:
-		move_list=[]
-		score_list=[]
-		for i in moves:
-			move_list.append(i)
-			temp_grid=grid.copy()
-			make_grid(temp_grid,i,"min")
-			score_list.append(minimax(temp_grid,"max",[]))
+		values={}
+		empty_spaces=find_all_empty_space(board)
+		for i in empty_spaces:
+			fake_board=make_fake_board(board,i,'Y')
+			value=minimax(fake_board,True,[depth[0],depth[1]+1])
+			add_to_dict(values,value,i)
+		min=find_min(values)
+		if(depth[0]==depth[1]):
+			return values[min]
+		else: return min 
 
-	move=index_of(max(score_list))
+board=[['X','O','X'],['O','O','X'],['','','']]
 
-
-
-
-grid=[['','',''],['','',''],['','','']]
+print(minimax(board,True,[6,6]))
