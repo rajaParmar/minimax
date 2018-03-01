@@ -97,7 +97,17 @@ board=[['','',''],['','',''],['','','']]
 
 def game(board):
 
-	while(win_or_draw_or_continue(board) =='@'):
+	while(True):
+		if(result!='@'):
+			if(result==[1,'X']):
+				print("X wins")
+				break
+			if(result==[1,'Y']):
+				print("Y wins")
+				break
+			if(result==0):
+				print("Match drawn")
+				break
 		board_print(board)
 		print("Enter choice:")
 		choice=(int)(input())
@@ -105,10 +115,9 @@ def game(board):
 		u_y=nxy[choice][1]
 		board[u_x][u_y]='O'
 		options=minimax(board,True,[1,1])
-		if(len(options)==0):
-			print("Match Drawn!")
-			break
 		c_opt_x=options[0][0]
 		c_opt_y=options[0][1]
 		board[c_opt_x][c_opt_y]='X'
+		result=win_or_draw_or_continue(board) 
+		
 game(board)
