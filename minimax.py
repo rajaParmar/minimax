@@ -21,6 +21,17 @@ def add_to_dict(values,score,coord):
 	except KeyError:
 		values[score]=[coord]
 
+def board_print(board):
+	for i in board:
+		for j in i:
+			if(j==''):
+				print('@','|',end='')
+			else:
+				print(j,'|',end='')
+		print()
+
+
+
 def win_or_draw_or_continue(board):
 	win_coord=[[1,2,3],[4,5,6],[7,8,9],[1,4,7],[2,5,8],[3,6,9],[1,5,9],[3,5,7]]
 	empty=['','','']
@@ -54,9 +65,9 @@ def minimax(board,is_max,depth):
 	val=win_or_draw_or_continue(board)
 	if(val==0):
 		return 0
-	if(val==[1,'x']):
+	if(val==[1,'X']):
 		return 10
-	if(val==[1,'y']):
+	if(val==[1,'O']):
 		return -10
 
 	if(is_max):
@@ -74,7 +85,7 @@ def minimax(board,is_max,depth):
 		values={}
 		empty_spaces=find_all_empty_space(board)
 		for i in empty_spaces:
-			fake_board=make_fake_board(board,i,'Y')
+			fake_board=make_fake_board(board,i,'O')
 			value=minimax(fake_board,True,[depth[0],depth[1]+1])
 			add_to_dict(values,value,i)
 		min=find_min(values)
@@ -82,6 +93,22 @@ def minimax(board,is_max,depth):
 			return values[min]
 		else: return min 
 
-board=[['X','O','X'],['O','O','X'],['','','']]
+board=[['','',''],['','',''],['','','']]
 
-print(minimax(board,True,[6,6]))
+def game(board):
+
+	while(win_or_draw_or_continue(board) =='@'):
+		board_print(board)
+		print("Enter choice:")
+		choice=(int)(input())
+		u_x=nxy[choice][0]
+		u_y=nxy[choice][1]
+		board[u_x][u_y]='O'
+		options=minimax(board,True,[1,1])
+		if(len(options)==0):
+			print("Match Drawn!")
+			break
+		c_opt_x=options[0][0]
+		c_opt_y=options[0][1]
+		board[c_opt_x][c_opt_y]='X'
+game(board)
